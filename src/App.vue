@@ -1,15 +1,27 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+
+<!--  <img src="./assets/logo.png">-->
+<!--  <div>-->
+<!--    <p>-->
+<!--      If Element Plus is successfully added to this project, you'll see an-->
+<!--      <code v-text="'<el-button>'"></code>-->
+<!--      below-->
+<!--    </p>-->
+<!--    <el-button type="primary">el-button</el-button>-->
+<!--  </div>-->
+<!--  <HelloWorld msg="Welcome to Your Vue.js App"/>-->
+  <MainNav></MainNav>
+  <router-view/>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
-
+// import HomeView from './views/HomeView.vue'
+import MainNav from "@/components/MainNav.vue";
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    MainNav,
+
   }
 }
 </script>
@@ -21,6 +33,11 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  //margin-top: 60px;
+}
+MainNav{
+  top: -2em;
+  width: 100%;
+  height: 100%;
 }
 </style>

@@ -31,10 +31,16 @@
 </template>
 
 <script>
+import request from "@/request/request";
 export default {
   name: 'HelloWorld',
   props: {
     msg: String
+  },
+  mounted() {
+    request.get("/login").then((res) => {
+      console.log(res);
+    })
   }
 }
 </script>

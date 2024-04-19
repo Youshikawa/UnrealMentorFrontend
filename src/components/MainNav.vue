@@ -4,7 +4,7 @@
         <el-col :span="4">
           <div class="logo" @click="handleLogoTextClicked">
                       <img src="@/assets/logo.png" alt="logo" height="100%">
-  <!--          Policy Filter-->
+
           </div>
         </el-col>
         <el-col :span="10 + navLen" :offset="10" style="right: 0">
@@ -12,41 +12,37 @@
             <el-menu mode="horizontal" :router="true" :default-active="$route.path" class="menu-custom-style">
               <el-menu-item index="/">首页</el-menu-item>
               <el-menu-item index="/new">社区</el-menu-item>
-              <el-menu-item index="/hot">智能问答</el-menu-item>
+              <el-menu-item index="/chat">智能问答</el-menu-item>
               <el-menu-item index="/search">更多功能</el-menu-item>
-              <el-menu-item index="/about">关于</el-menu-item>
               <el-menu-item  v-if="!token" index="/login" style="text-decoration: none " disabled>
-              <button class = "login_button" @click="to_login" >登录</button>
+              <button class = "login_button" @click="to_login" v-if="is_login === false">登录</button>
+              <button class = "register_button" @click="to_register" v-if="is_login === false" >注册</button>
                 </el-menu-item>
+        <el-col class = "useritem" :span="1 - navLen">
+         <div v-if="is_login === true" style="padding-left: 1em;">
+           <el-dropdown   class = "useritem">
+             <span class="el-dropdown-link logo">
+               <div>
+                 {{username}}
+               </div>
+               <el-icon class="el-icon&#45;&#45;right">
+                 <arrow-down/>
+               </el-icon>
+             </span>
+             <template #dropdown>
+               <el-dropdown-menu>
+                 <el-dropdown-item @click="handleNewArticleClicked">新建文章</el-dropdown-item>
+                 <el-dropdown-item @click="handleAdmin">后台管理</el-dropdown-item>
+                 <el-dropdown-item divided @click="handleLogout">退出登录</el-dropdown-item>
+               </el-dropdown-menu>
+             </template>
+           </el-dropdown>
+         </div>
+       </el-col>
             </el-menu>
           </div>
         </el-col>
-<!--        <el-col :span="2 - navLen">-->
-<!--          <div v-if="token" style="padding-left: 1em;">-->
-<!--            <el-dropdown>-->
-<!--              <span class="el-dropdown-link logo">-->
-<!--                <div>-->
-<!--                  {{username}}-->
-<!--                </div>-->
-<!--                <el-icon class="el-icon&#45;&#45;right">-->
-<!--                  <arrow-down/>-->
-<!--                </el-icon>-->
-<!--              </span>-->
-<!--              <template #dropdown>-->
-<!--                <el-dropdown-menu>-->
-<!--                  <el-dropdown-item @click="handleNewArticleClicked">新建文章</el-dropdown-item>-->
-<!--                  <el-dropdown-item @click="handleAdmin">后台管理</el-dropdown-item>-->
-<!--                  &lt;!&ndash;                <el-dropdown-item>Action 3</el-dropdown-item>&ndash;&gt;-->
-<!--                  &lt;!&ndash;                <el-dropdown-item disabled>Action 4</el-dropdown-item>&ndash;&gt;-->
-<!--                  <el-dropdown-item divided @click="handleLogout">退出登录</el-dropdown-item>-->
-<!--                </el-dropdown-menu>-->
-<!--              </template>-->
-<!--            </el-dropdown>-->
-<!--          </div>-->
-<!--  &lt;!&ndash;        <div v-else>&ndash;&gt;-->
-<!--  &lt;!&ndash;          <div class = "logo">登录</div>&ndash;&gt;-->
-<!--  &lt;!&ndash;        </div>&ndash;&gt;-->
-<!--        </el-col>-->
+       
       </el-row>
     </div>
   </template>
@@ -54,7 +50,8 @@
   <script>
   import {ElRow, ElCol, ElMenu, ElMenuItem, ElMessageBox} from "element-plus";
 //   import JsCookie from "js-cookie";
-  
+import { success, failed } from '@/request/code';
+import request from '@/request/request'
   export default {
     // eslint-disable-next-line vue/multi-word-component-names
     name: "Nav",
@@ -69,22 +66,26 @@
         token: "",
         username: "admin",
         navLen: 0,
+        is_login:1,
       }
     },
     mounted() {
-      // console.log("111");
-    //   this.$data.token = JsCookie.get("token");
-    //   if (this.$data.token) {
-    //     this.$data.username = JsCookie.get("username");
-    //     this.$data.navLen = 0;
-    //   }else{
-    //     this.$data.navLen = 1;
-    //   }
-      // this.$data.token = '1';
+
+      request.get('/user/status/').then((res) => {
+        if (res.code === success) {
+          this.is_login = true;
+          this.username = res.username
+        } else if (res.code === failed){
+          this.is_login = false;
+        }
+      })
     },
     methods: {
       to_login() {
         this.$router.push({name:"login"});
+      },
+      to_register() {
+        this.$router.push({name:"register"});
       },
       handleLogout() {
         ElMessageBox.confirm('确定要退出登录吗？', '提示', {
@@ -92,8 +93,8 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-        //   JsCookie.remove("token");
-        //   JsCookie.remove("username");
+          let data = new FormData();
+          request.post('/user/logout/', data, {headers:{'Content-Type': 'application/json',}});
           location.reload();
           // 确定退出登录，执行相关逻辑
         }).catch(() => {
@@ -146,7 +147,12 @@
   .el-menu.el-menu--horizontal {
   
   }
-  
+  .useritem{
+    border: none;
+  }
+  .useritem:hover{
+    border: none;
+  }
   .menu-custom-style{
     border-bottom: solid 0px var(--el-menu-border-color)!important;
     width: 100%;
@@ -183,7 +189,24 @@
     background-color: #00078d; /* 悬停时的深色背景 */
     cursor: pointer;
 }
+.register_button {
+    
+    border: none;
+    display: inline-block;
+    margin:10px;
+    padding: 10px 20px;
+    border-radius: 30px; /* 控制圆角半径 */
+    background-color: #2415ff; /* 深蓝色背景 */
+    color: #ffffff; /* 文字颜色为白色 */
+    text-align: center;
+    text-decoration: none;
+    transition: background-color 0.3s ease; /* 添加颜色过渡效果 */
+}
 
+.register_button:hover {
+    background-color: #00078d; /* 悬停时的深色背景 */
+    cursor: pointer;
+}
   .logo:hover{
     cursor: pointer;
   }

@@ -72,6 +72,13 @@ import { success, failed } from '@/request/code';
 import request from '@/request/request'
 export default {
     name: 'LoginPage',
+    mounted(){
+        request.get('/user/status/').then((res) => {
+        if (res.code === success) {
+            this.$router.push({path:'/'});
+        } 
+      })
+    },
     data() {
         return {
             codeUrl: '',
@@ -118,7 +125,8 @@ export default {
                                 type: 'success',
                                 center: true,
                             })
-                            this.$router.push({path: '/'});
+                            location.reload();                            
+
                             
                         } else if (res.code === failed) {
                             this.$message({

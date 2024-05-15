@@ -1,4 +1,13 @@
 <template>
+    <div class= "conversation-container">
+        <ul class="conversation-list">
+          <h3>历史任务列表</h3>
+            <!-- 使用 v-for 指令循环渲染会话列表 -->
+            <li class="conversation-item" v-for=" conversation,id in conversations" :key="conversation.id" @click="selectConversation(id)">
+                {{ conversation }}
+            </li>
+        </ul>
+    </div>
     <div class="chat-container">
       <div class="login-reminder" v-if = "login_remember">
         系统发生了错误：请检查是否登入，或者管理人员/ Please check login.
@@ -9,8 +18,9 @@
       </div>
       </div>  
       <div class="input-container">
-        <input class = "input-container-texta" v-model="userMessage" @keyup.enter="sendMessage" placeholder="Type your message...">
-      </div>
+        <textarea class = "input-container-texta" v-model="userMessage" @keyup.enter="sendMessage" placeholder="今天想问什么呀，很高兴能帮到你～（按住Ctrl和Enter发送哦）">
+          </textarea>
+        </div>
     </div>
   </template>
   
@@ -22,24 +32,54 @@ import md from '@/request/markdown'
 
   import {ref} from 'vue';
   export default {
+    mounted() {
+      request.get('/chatapi/history_chat/').then((res) => {
+        console.log(res)
+        if (res.code === success) {
+          this.$data.conversations = res.data
+        } else {
+          console.log();
+        }
+      }
+        )
+    },
     data() {
       return {
+
         userMessage: '',
         messages: [],
         text:ref("Heelp"),
         conversation_id: -1,
         md:md,
         login_remember: false,
+        //______________历史会话消息
+        conversations: [ // 会话列表数据
+           
+            // 添加更多会话项
+        ],
+        selectedConversation: null, // 当前选定的会话
+        isCollapsed: false // 是否折叠
+        //________________
       };
     },
     methods: {
-      sendMessage() {
-        // 将用户消息添加到消息列表
+      selectConversation(conversation_id) {
+        let data = new FormData();
+        data.append('conversation_id', conversation_id)
+        request.post('/chatapi/conversation/', data, {headers:{'Content-Type': 'application/json',}}).then((res) => {
+          if (res.code === success){
+            this.$data.messages = res.data;
+          }
+        })
+      },
+      sendMessage(e) {
+
+      if((e.ctrlKey && e.keyCode==13) ) {  // 将用户消息添加到消息列表
         this.messages.push({ sender: 'user', text: this.userMessage });
         // 发送用户消息到ChatGPT并获取回复
         this.getChatGPTResponse(this.userMessage);
         // 清空用户输入框
-        this.userMessage = '';
+        this.userMessage = '';}
       },
       getChatGPTResponse(message) {
         // 这里你可以实现发送用户消息到ChatGPT的逻辑
@@ -104,10 +144,13 @@ import md from '@/request/markdown'
 }
 
 .input-container-texta {
+  width: 700px;
+  overflow: auto;
+  resize:none;
   background-color: rgb(240, 240, 246);
   transition: all 400ms ease-in-out 0s;
   padding: 10px;
-  border-radius: 100vh;
+  border-radius: 1vh;
   border: none;
   outline-color: white;
 }
@@ -130,7 +173,6 @@ import md from '@/request/markdown'
   .login-reminder {
     animation: fadeInOut 0.78s ease-in-out infinite alternate;
   }
-
   @keyframes fadeInOut {
     0% {
       opacity: 0.5;
@@ -145,4 +187,39 @@ input {
   border: 1px solid #ccc;
   border-radius: 5px;
 }
+.conversation-container {
+  background-color: rgb(240,240,240);
+  height: 100%;
+  position: absolute;
+        display: flex;
+    }
+    .conversation-list {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+        max-height: 100vh; /* 最大高度为视口高度 */
+        overflow-y: auto; /* 当内容超出容器高度时显示滚动条 */
+        width: 200px; /* 初始宽度 */
+        transition: width 0.3s ease; /* 使用过渡动画 */
+    }
+    .conversation-item {
+      margin: 1vh;
+      white-space: nowrap;
+  /* 当文本超出容器时显示省略号 */
+  overflow: hidden;
+  /* 显示省略号 */
+  text-overflow: ellipsis;
+      text-align: left;
+      border: none;
+      border-radius: 5px; /* 边框圆角 */
+        padding: 10px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+    .conversation-item:hover {
+        background-color: rgb(225,225,224);
+    }
+    .collapsed {
+        width: 0; /* 折叠后宽度为0 */
+    }
 </style>

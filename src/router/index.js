@@ -3,6 +3,10 @@ import HomeView from '../views/HomeView.vue'
 import Login from '@/views/LoginPage.vue'
 import register from '@/views/RegisterPage.vue'
 import chat from '@/views/ChatPage.vue'
+import problemSet from "@/views/ProblemSet.vue";
+import ProblemPage from "@/views/ProblemPage.vue";
+import SubmissionList from '@/views/SubmissionList.vue'
+import SubmissionPage from '@/views/SubmissionPage.vue'
 const routes = [
   {
     path: '/',
@@ -31,6 +35,26 @@ const routes = [
     path:'/chat',
     name:'chat',
     component:chat,
+  },
+  {
+    path:'/problems',
+    name:'problems',
+    component: problemSet
+  },
+  {
+    path:'/problem',
+    name:'problem',
+    component: ProblemPage
+  },
+  {
+    path:'/submission_list',
+    name : "submission_list",
+    component: SubmissionList
+  },
+  {
+    path:'/submission',
+    name:"submission",
+    component: SubmissionPage
   }
 ]
 

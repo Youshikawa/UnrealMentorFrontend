@@ -23,7 +23,8 @@ hljs.registerLanguage('json', json);
 hljs.registerLanguage('yaml', yaml);
 hljs.registerLanguage('xml', xml);
 hljs.registerLanguage('shell', shell);
-
+const katex = require('katex');
+const mdKatex = require('markdown-it-katex');
 const md = new MarkdownIt({
   html: true,
   linkify: true,
@@ -47,6 +48,9 @@ const md = new MarkdownIt({
       "</code></pre>"
     );
   },
+}).use(mdKatex, {
+  // 配置选项
+  katex: katex,
+  allowInlineWithSpace:true,
 });
-
 export default md

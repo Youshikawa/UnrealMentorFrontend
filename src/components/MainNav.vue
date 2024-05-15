@@ -3,7 +3,7 @@
       <el-row>
         <el-col :span="4">
           <div class="logo" @click="handleLogoTextClicked">
-                      <img src="@/assets/logo.png" alt="logo" height="100%">
+            <img src="@/assets/logo.png" alt="logo" height="100%">
 
           </div>
         </el-col>
@@ -13,7 +13,7 @@
               <el-menu-item index="/">首页</el-menu-item>
               <el-menu-item index="/new">社区</el-menu-item>
               <el-menu-item index="/chat">智能问答</el-menu-item>
-              <el-menu-item index="/search">更多功能</el-menu-item>
+              <el-menu-item index="/problems">智能题库</el-menu-item>
               <el-menu-item  v-if="!token" index="/login" style="text-decoration: none " disabled>
               <button class = "login_button" @click="to_login" v-if="is_login === false">登录</button>
               <button class = "register_button" @click="to_register" v-if="is_login === false" >注册</button>
